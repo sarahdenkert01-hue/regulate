@@ -15,6 +15,9 @@ const narration = ref('')
 const currentArousal = ref(50)
 const arousalHistory = ref([])
 const showWindowOfTolerance = ref(false)
+
+const stepTimeLeft = ref(0)
+let vergenceTimer = null
   
 function loadFavorites() {
   const saved = localStorage.getItem('regulate-favorites')
@@ -166,11 +169,14 @@ async function startVergence(mode) {
 }
 
 function closePanic() {
+  clearInterval(vergenceTimer)
+
   showPanic.value = false
   panicMode.value = null
   vergenceStep.value = 0
   vergenceComplete.value = false
   narration.value = ''
+  stepTimeLeft.value = 0
 }
 
 function handleFeelingBetter(better) {
@@ -827,6 +833,10 @@ function toggleWhy(toolId) {
           
           <div class="narration">
             {{ narration }}
+          </div>
+
+          <div class="step-timer">
+            {{ stepTimeLeft }}
           </div>
           
           <div class="progress-bar">
