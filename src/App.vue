@@ -15,6 +15,7 @@ const narration = ref('')
 const currentArousal = ref(50)
 const arousalHistory = ref([])
 const showWindowOfTolerance = ref(false)
+const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY
 
 function loadFavorites() {
   const saved = localStorage.getItem('regulate-favorites')
