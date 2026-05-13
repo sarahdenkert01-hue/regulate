@@ -136,24 +136,32 @@ const vergenceGuide = {
   ]
 }
 
+let currentAudio = null
+
 async function speak(text) {
   try {
+    console.log('API key:', import.meta.env.VITE_ELEVENLABS_API_KEY)
+    console.log('Speaking:', text)
+
+    if (!import.meta.env.VITE_ELEVENLABS_API_KEY) {
+      throw new Error('Missing ElevenLabs API key. Check your .env file and restart npm run dev.')
+    }
+
     if (currentAudio) {
       currentAudio.pause()
       currentAudio = null
     }
 
     const response = await fetch(
-      'https://api.elevenlabs.io/v1/text-to-speech/dYJIWpEFaxYXREVlofDm',
+      'https://api.elevenlabs.io/v1/text-to-speech/YOUR_VOICE_ID?output_format=mp3_44100_128',
       {
         method: 'POST',
         headers: {
-          'Accept': 'audio/mpeg',
           'Content-Type': 'application/json',
           'xi-api-key': import.meta.env.VITE_ELEVENLABS_API_KEY
         },
         body: JSON.stringify({
-          text: text,
+          text,
           model_id: 'eleven_multilingual_v2',
           voice_settings: {
             stability: 0.82,
@@ -164,6 +172,23 @@ async function speak(text) {
         })
       }
     )
+
+    console.log('ElevenLabs status:', response.status)
+
+    if (!response.ok) {
+      const errorText = await response.text()
+      throw new Error(`ElevenLabs error ${response.status}: ${errorText}`)
+    }
+
+    const audioBlob = await response.blob()
+    const audioUrl = URL.createObjectURL(audioBlob)
+
+    currentAudio = new Audio(audioUrl)
+    await currentAudio.play()
+  } catch (error) {
+    console.error('Speech error:', error)
+  }
+}
 
     const audioBlob = await response.blob()
     const audioUrl = URL.createObjectURL(audioBlob)
