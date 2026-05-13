@@ -16,7 +16,9 @@ const currentArousal = ref(50)
 const arousalHistory = ref([])
 const showWindowOfTolerance = ref(false)
 const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY
-
+  
+let currentAudio = null
+  
 function loadFavorites() {
   const saved = localStorage.getItem('regulate-favorites')
   if (saved) {
@@ -136,6 +138,11 @@ const vergenceGuide = {
 
 async function speak(text) {
   try {
+    if (currentAudio) {
+      currentAudio.pause()
+      currentAudio = null
+    }
+
     const response = await fetch(
       'https://api.elevenlabs.io/v1/text-to-speech/dYJIWpEFaxYXREVlofDm',
       {
@@ -157,6 +164,16 @@ async function speak(text) {
         })
       }
     )
+
+    const audioBlob = await response.blob()
+    const audioUrl = URL.createObjectURL(audioBlob)
+
+    currentAudio = new Audio(audioUrl)
+    currentAudio.play()
+  } catch (error) {
+    console.error('Speech error:', error)
+  }
+}
 
     const audioBlob = await response.blob()
     const audioUrl = URL.createObjectURL(audioBlob)
