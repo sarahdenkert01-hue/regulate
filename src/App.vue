@@ -1920,7 +1920,7 @@ function toggleWhy(toolId) {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 20px;
   max-width: 400px;
 }
 
@@ -2328,5 +2328,6 @@ function toggleWhy(toolId) {
   font-weight: 800;
   color: #1a1714;
   box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+  z-index: 3001;
 }
 </style>
