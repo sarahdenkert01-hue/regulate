@@ -164,9 +164,6 @@ async function startVergence(mode) {
   clearInterval(vergenceTimer)
   vergenceComplete.value = true
 }
-  
-  vergenceComplete.value = true
-}
 
 function closePanic() {
   clearInterval(vergenceTimer)
@@ -2318,4 +2315,19 @@ function toggleWhy(toolId) {
 .wot-content {
   margin-bottom: 20px;
 }
+.step-timer {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid #1a1714;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  font-weight: 800;
+  color: #1a1714;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+</style>
 </style>
