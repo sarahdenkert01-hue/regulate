@@ -15,9 +15,6 @@ const narration = ref('')
 const currentArousal = ref(50)
 const arousalHistory = ref([])
 const showWindowOfTolerance = ref(false)
-const apiKey = import.meta.env.VITE_ELEVENLABS_API_KEY
-  
-let currentAudio = null
   
 function loadFavorites() {
   const saved = localStorage.getItem('regulate-favorites')
@@ -136,93 +133,34 @@ const vergenceGuide = {
   ]
 }
 
-let currentAudio = null
-
-async function speak(text) {
-  try {
-    console.log('API key:', import.meta.env.VITE_ELEVENLABS_API_KEY)
-    console.log('Speaking:', text)
-
-    if (!import.meta.env.VITE_ELEVENLABS_API_KEY) {
-      throw new Error('Missing ElevenLabs API key. Check your .env file and restart npm run dev.')
-    }
-
-    if (currentAudio) {
-      currentAudio.pause()
-      currentAudio = null
-    }
-
-    const response = await fetch(
-      'https://api.elevenlabs.io/v1/text-to-speech/YOUR_VOICE_ID?output_format=mp3_44100_128',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'xi-api-key': import.meta.env.VITE_ELEVENLABS_API_KEY
-        },
-        body: JSON.stringify({
-          text,
-          model_id: 'eleven_multilingual_v2',
-          voice_settings: {
-            stability: 0.82,
-            similarity_boost: 0.88,
-            style: 0.12,
-            use_speaker_boost: true
-          }
-        })
-      }
-    )
-
-    console.log('ElevenLabs status:', response.status)
-
-    if (!response.ok) {
-      const errorText = await response.text()
-      throw new Error(`ElevenLabs error ${response.status}: ${errorText}`)
-    }
-
-    const audioBlob = await response.blob()
-    const audioUrl = URL.createObjectURL(audioBlob)
-
-    currentAudio = new Audio(audioUrl)
-    await currentAudio.play()
-  } catch (error) {
-    console.error('Speech error:', error)
-  }
-}
-
-    const audioBlob = await response.blob()
-    const audioUrl = URL.createObjectURL(audioBlob)
-
-    currentAudio = new Audio(audioUrl)
-    currentAudio.play()
-  } catch (error) {
-    console.error('Speech error:', error)
-  }
-}
-
-    const audioBlob = await response.blob()
-    const audioUrl = URL.createObjectURL(audioBlob)
-
-    const audio = new Audio(audioUrl)
-    audio.play()
-  } catch (error) {
-    console.error('Speech error:', error)
-  }
-}
-
 async function startVergence(mode) {
   panicMode.value = mode
   vergenceStep.value = 0
   vergenceComplete.value = false
-  
+
   const steps = vergenceGuide[mode]
-  
+
   for (let i = 0; i < steps.length; i++) {
     vergenceStep.value = i
     narration.value = steps[i].text
-    speak(steps[i].text)
-    await new Promise(resolve => setTimeout(resolve, steps[i].duration * 1000))
+    stepTimeLeft.value = steps[i].duration
+
+    clearInterval(vergenceTimer)
+
+    vergenceTimer = setInterval(() => {
+      if (stepTimeLeft.value > 0) {
+        stepTimeLeft.value--
+      }
+    }, 1000)
+
+    await new Promise(resolve =>
+      setTimeout(resolve, steps[i].duration * 1000)
+    )
   }
+
+  clearInterval(vergenceTimer)
+  vergenceComplete.value = true
+}
   
   vergenceComplete.value = true
 }
